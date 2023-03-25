@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror -pthread -g
+CFLAGS = -Wall -pthread -g
 SRCDIR = src
 BUILDDIR = build
 
