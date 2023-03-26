@@ -6,46 +6,16 @@
 #include <sys/shm.h>
 #include <strings.h>
 #include "kitchen.h"
+#include "utils.h"
 
 #define NUM_RECIPES 5
-
-struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) {
-    recipes = (struct Recipe*) malloc(numRecipes * sizeof(struct Recipe));
-
-    struct Recipe cookies = {
-        "Cookies",
-        .requiredIngredients = {
-            {"Flour"},
-            {"Sugar"},
-            {"Eggs"},
-            {"Butter"},
-            {"Chocolate Chips"}
-        }
-    };
-
-    struct Recipe cake = {
-        "Cake",
-        .requiredIngredients = {
-            {"Flour"},
-            {"Sugar"},
-            {"Eggs"},
-            {"Butter"},
-            {"Vanilla"}
-        }
-    };
-
-    recipes[0] = cookies;
-    recipes[1] = cake;
-
-    return recipes;
-}
-
 
 int main() {
     int numBakers;
     struct Baker *bakers;
     struct Recipe *recipes = NULL;
 
+    /* Initializing the Recipes */
     recipes = createRecipes(recipes, NUM_RECIPES);
 
     printf("How many bakers will be competing today? ");
@@ -65,7 +35,8 @@ int main() {
         printf("%s\n", bakers[i].name);
     }
 
-   
+
+
     free(bakers);
     free(recipes);
 
