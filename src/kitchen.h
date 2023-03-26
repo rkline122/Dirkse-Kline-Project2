@@ -3,49 +3,49 @@
 
 #include <stdbool.h> 
 
-struct Ingredient{
+typedef struct {
     char name[20];
-};
+}Ingredient;
 
-struct Recipe{
+typedef struct {
     char name[20];
-    struct Ingredient requiredIngredients[10];
-};
+    Ingredient requiredIngredients[10];
+}Recipe;
 
-struct Equipment{
+typedef struct {
     char name[20];
     int quantity;
-};
+}Equipment;
 
-struct Baker{
+typedef struct {
     char name[20];
     int completedRecipes;
     bool usingOven;
-    struct Ingredient ingredientsAcquired[10];
-    struct Equipment equipmentAcquired[3];
-    struct Recipe recipes[5];
-};
+    Ingredient ingredientsAcquired[10];
+    Equipment equipmentAcquired[3];
+    Recipe recipes[5];
+}Baker;
 
-struct Refrigerator {
+typedef struct {
     bool in_use;
-    struct Ingredient ingredients[3];
-};
+    Ingredient ingredients[3];
+}Refrigerator ;
 
-struct Pantry {
+typedef struct {
     bool in_use;
-    struct Ingredient ingredients[6];
-};
+    Ingredient ingredients[6];
+}Pantry;
 
-struct Oven{
+typedef struct {
     bool in_use;
-};
+}Oven;
 
-struct Kitchen{
-    struct Baker *bakers;
-    struct Refrigerator *refrigerators;
-    struct Equipment *equipment;
-    struct Pantry pantry;
-    struct Oven oven;
-};
+typedef struct {
+    Baker *bakers;
+    Refrigerator *refrigerators;
+    Equipment *equipment;
+    Pantry pantry;
+    Oven oven;
+}Kitchen;
 
 #endif

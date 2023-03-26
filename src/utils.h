@@ -2,5 +2,5 @@
 #include <stdlib.h>
 #include "kitchen.h"
 
-struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes);
-struct Kitchen createKitchen();
+Recipe* createRecipes(Recipe* recipes, int numRecipes);
+Kitchen createKitchen();

@@ -3,10 +3,10 @@
 
 #include "utils.h"
 
-struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) { 
-    recipes = (struct Recipe*) malloc(numRecipes * sizeof(struct Recipe)); 
+Recipe* createRecipes(Recipe* recipes, int numRecipes) { 
+    recipes = (Recipe*) malloc(numRecipes * sizeof(Recipe)); 
     
-    struct Recipe cookies = { 
+    Recipe cookies = { 
         "Cookies", 
         .requiredIngredients = { 
             {"Flour"}, 
@@ -16,7 +16,7 @@ struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) {
         } 
     }; 
 
-    struct Recipe pancakes= { 
+    Recipe pancakes= { 
         "Pancakes", 
         .requiredIngredients = { 
             {"Flour"}, 
@@ -29,7 +29,7 @@ struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) {
         } 
     }; 
 
-    struct Recipe pizzaDough = { 
+    Recipe pizzaDough = { 
         "Pizza Dough", 
         .requiredIngredients = { 
             {"Yeast"},
@@ -38,7 +38,7 @@ struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) {
         }
     };
 
-    struct Recipe softPretzels = {
+    Recipe softPretzels = {
         "Soft Pretzels",
         .requiredIngredients = {
             {"Flour"},
@@ -50,7 +50,7 @@ struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) {
         }
     };
 
-    struct Recipe cinnamonRolls= {
+    Recipe cinnamonRolls= {
         "Cinnamon Rolls",
         .requiredIngredients = {
             {"Flour"},
@@ -71,41 +71,41 @@ struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) {
     return recipes;
 }
 
-struct Kitchen createKitchen(){
-    struct Kitchen kitchen;
+Kitchen createKitchen(){
+    Kitchen kitchen;
 
     // Initialize ingredients
-    struct Ingredient egg = {"Egg"};
-    struct Ingredient milk = {"Milk"};
-    struct Ingredient butter = {"Butter"};
+    Ingredient egg = {"Egg"};
+    Ingredient milk = {"Milk"};
+    Ingredient butter = {"Butter"};
 
-    struct Ingredient flour = {"Flour"};
-    struct Ingredient sugar = {"Sugar"};
-    struct Ingredient yeast = {"Yeast"};
-    struct Ingredient bakingSoda = {"Baking Soda"};
-    struct Ingredient salt = {"Salt"};
-    struct Ingredient cinnamon = {"Cinnamon"};
+    Ingredient flour = {"Flour"};
+    Ingredient sugar = {"Sugar"};
+    Ingredient yeast = {"Yeast"};
+    Ingredient bakingSoda = {"Baking Soda"};
+    Ingredient salt = {"Salt"};
+    Ingredient cinnamon = {"Cinnamon"};
 
     // Initialize equipment
-    struct Equipment mixer = {"Mixer", 2};
-    struct Equipment bowl = {"Bowl", 3};
-    struct Equipment spoon = {"Spoon", 5};
+    Equipment mixer = {"Mixer", 2};
+    Equipment bowl = {"Bowl", 3};
+    Equipment spoon = {"Spoon", 5};
 
     // Initialize oven
-    struct Oven oven = {false};
+    Oven oven = {false};
 
     // Initialize bakers to NULL
     kitchen.bakers = NULL;
 
     // Allocate memory for refrigerators
-    kitchen.refrigerators = calloc(2, sizeof(struct Refrigerator));
+    kitchen.refrigerators = calloc(2, sizeof(Refrigerator));
 
     // Allocate memory for equipment
-    kitchen.equipment = calloc(3, sizeof(struct Equipment));
+    kitchen.equipment = calloc(3, sizeof(Equipment));
 
     // Initialize refrigerators
     for (int i = 0; i < 2; i++) {
-        kitchen.refrigerators[i] = (struct Refrigerator) {
+        kitchen.refrigerators[i] = (Refrigerator) {
             .in_use = false,
             .ingredients = {
                 egg,
@@ -115,7 +115,7 @@ struct Kitchen createKitchen(){
         };
     }
 
-    kitchen.pantry = (struct Pantry) {
+    kitchen.pantry = (Pantry) {
         .in_use = false,
         .ingredients = {
             flour,
