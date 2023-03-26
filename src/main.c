@@ -2,18 +2,29 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <strings.h>
 #include "kitchen.h"
 #include "utils.h"
+#include <strings.h>
 
 #define NUM_RECIPES 5
 #define SHARED_MEMORY_SIZE 100
 
-int *shared_mem; // pointer to shared memory segment
+
+struct Kitchen *shared_kitchen;
+
+void *memcpy(void *dest, const void *src, size_t n);
 
 void *bakerThread(void *arg) {
     struct Baker *baker = (struct Baker *)arg;
-    printf("Baker %s is starting to bake.\n", baker->name);
+
+    if(shared_kitchen->oven.in_use == false) {
+        printf("Baker %s is using the oven.\n", baker->name);
+        shared_kitchen->oven.in_use = true;
+        baker->usingOven = true;
+    }else{
+        printf("Baker %s is waiting for the oven.\n", baker->name);
+    }
+
     pthread_exit(NULL);
 }
 
@@ -23,6 +34,7 @@ int main() {
     int numBakers;
     struct Baker *bakers;
     struct Recipe *recipes = NULL;
+    struct Kitchen kitchen = createKitchen();
 
     /* Initializing the Recipes */
     recipes = createRecipes(recipes, NUM_RECIPES);
@@ -44,17 +56,20 @@ int main() {
         printf("%s\n", bakers[i].name);
     }
 
-    // create shared memory segment
-    if ((shmid = shmget(key, SHARED_MEMORY_SIZE, IPC_CREAT | 0666)) < 0) {
+    // create shared memory segment for kitchen
+    if ((shmid = shmget(key, sizeof(struct Kitchen), IPC_CREAT | 0666)) < 0) {
         perror("shmget");
         exit(1);
     }
 
-    // attach shared memory segment
-    if ((shared_mem = shmat(shmid, NULL, 0)) == (int *) -1) {
+    // attach shared memory segment for kitchen
+    if ((shared_kitchen = shmat(shmid, NULL, 0)) == (struct Kitchen *) -1) {
         perror("shmat");
         exit(1);
     }
+
+    // copy kitchen to shared memory segment
+    memcpy(shared_kitchen, &kitchen, sizeof(struct Kitchen));
 
     // create baker threads
     pthread_t threads[numBakers];
@@ -73,10 +88,12 @@ int main() {
         }
     }
 
-    // detach and remove shared memory segment
-    shmdt(shared_mem);
+    // detach and remove shared memory segment for kitchen
+    shmdt(shared_kitchen);
     shmctl(shmid, IPC_RMID, NULL);
 
+    free(kitchen.refrigerators);
+    free(kitchen.equipment);
     free(bakers);
     free(recipes);
 

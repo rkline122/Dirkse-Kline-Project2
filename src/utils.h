@@ -3,3 +3,4 @@
 #include "kitchen.h"
 
 struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes);
+struct Kitchen createKitchen();
