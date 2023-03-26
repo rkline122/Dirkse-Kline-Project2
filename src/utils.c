@@ -1,35 +1,9 @@
+#ifndef UTILS_H 
+#define UTILS_H
+
 #include "utils.h"
 
-struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) {
-    recipes = (struct Recipe*) malloc(numRecipes * sizeof(struct Recipe));
-
-    struct Recipe cookies = {
-        "Cookies",
-        .requiredIngredients = {
-            {"Flour"},
-            {"Sugar"},
-            {"Milk"},
-            {"Butter"}
-        }
-    };
-
-    struct Recipe pancakes= {
-        "Pancakes",
-        .requiredIngredients = {
-            {"Flour"},
-            {"Sugar"},
-            {"Baking Soda"},
-            {"Salt"},
-            {"Egg"},
-            {"Milk"},
-            {"Butter"}
-        }
-    };
-
-    struct Recipe pizzaDough= {
-        "Pizza Dough",
-        .requiredIngredients = {
-            {"Yeast"},
+struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) { recipes = (struct Recipe*) malloc(numRecipes * sizeof(struct Recipe)); struct Recipe cookies = { "Cookies", .requiredIngredients = { {"Flour"}, {"Sugar"}, {"Milk"}, {"Butter"} } }; struct Recipe pancakes= { "Pancakes", .requiredIngredients = { {"Flour"}, {"Sugar"}, {"Baking Soda"}, {"Salt"}, {"Egg"}, {"Milk"}, {"Butter"} } }; struct Recipe pizzaDough= { "Pizza Dough", .requiredIngredients = { {"Yeast"},
             {"Sugar"},
             {"Salt"}
         }
@@ -68,3 +42,5 @@ struct Recipe* createRecipes(struct Recipe* recipes, int numRecipes) {
 
     return recipes;
 }
+
+#endif

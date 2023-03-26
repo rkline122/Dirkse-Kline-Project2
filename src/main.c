@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -18,7 +16,6 @@ void *bakerThread(void *arg) {
     printf("Baker %s is starting to bake.\n", baker->name);
     pthread_exit(NULL);
 }
-
 
 int main() {
     key_t key = 1234; // key for shared memory segment
