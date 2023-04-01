@@ -1,5 +1,7 @@
 #include "utils.h"
 
+
+int *ranking;
 sem_t mixer_sem;
 sem_t pantry_sem;
 sem_t refrigerator_sem;
@@ -20,6 +22,12 @@ void *baker_thread(void *arg) {
     bakeRecipe(baker, "soft pretzels", 2);  
     bakeRecipe(baker, "cinnamon rolls", 5);  
     printf("Baker %d is done!\n", baker->id);
+
+    int i = 0;
+    while(ranking[i] != 0){
+        i++;
+    }
+    ranking[i] = baker->id;
 
     return NULL;
 }
@@ -47,6 +55,12 @@ int main() {
     sem_init(&oven_sem, 0, 1);
 
     Baker *bakers = malloc(sizeof(Baker) * num_bakers);
+    ranking = (int*)malloc(sizeof(int) * num_bakers);
+
+    // Initialize ranking array
+    for(int i = 0; i < num_bakers; i++){
+        ranking[i] = 0;
+    }
 
     // Create baker threads
     for (int i = 0; i < num_bakers; i++) {
@@ -59,6 +73,27 @@ int main() {
         pthread_join(bakers[i].tid, NULL);
     }
 
+    // Print ranking
+    printf("\nThe final results are in!\n");
+    printf("===========================\n");
+    for(int i = 0; i < num_bakers; i++){
+        switch (i){
+        case 0:
+            printf("1st Place: Baker %d\n", ranking[i]);
+            break;
+        case 1:
+            printf("2nd Place: Baker %d\n", ranking[i]);
+            break;
+        case 2:
+            printf("3rd Place: Baker %d\n", ranking[i]);
+            break;
+        default:
+            printf("%dth Place: Baker %d\n", i+1, ranking[i]);
+            break;
+        }
+        
+    }
+
     // Destroy semaphores
     sem_destroy(&mixer_sem);
     sem_destroy(&pantry_sem);
@@ -68,6 +103,7 @@ int main() {
     sem_destroy(&oven_sem);
 
     free(bakers);
+    free(ranking);
 
     return 0;
 }
