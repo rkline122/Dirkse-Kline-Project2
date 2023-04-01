@@ -7,8 +7,6 @@ sem_t bowl_sem;
 sem_t spoon_sem;
 sem_t oven_sem;
 
-
-
 void *baker_thread(void *arg) {
     Baker *baker = (Baker *)arg;
 
@@ -21,7 +19,6 @@ void *baker_thread(void *arg) {
     bakeRecipe(baker, "pizza dough", 7);  
     bakeRecipe(baker, "soft pretzels", 2);  
     bakeRecipe(baker, "cinnamon rolls", 5);  
-
     printf("Baker %d is done!\n", baker->id);
 
     return NULL;
@@ -54,7 +51,6 @@ int main() {
     // Create baker threads
     for (int i = 0; i < num_bakers; i++) {
         bakers[i].id = i + 1;
-        bakers[i].recipes_completed = 0;
         pthread_create(&bakers[i].tid, NULL, baker_thread, (void *)&bakers[i]);
     }
 
