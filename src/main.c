@@ -1,100 +1,77 @@
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <strings.h>
-#include "kitchen.h"
 #include "utils.h"
 
-#define NUM_RECIPES 5
-#define SHARED_MEMORY_SIZE 100
+sem_t mixer_sem;
+sem_t pantry_sem;
+sem_t refrigerator_sem;
+sem_t bowl_sem;
+sem_t spoon_sem;
+sem_t oven_sem;
 
 
-Kitchen *shared_kitchen;
 
-void *memcpy(void *dest, const void *src, size_t n);
-
-void *bakerThread(void *arg) {
+void *baker_thread(void *arg) {
     Baker *baker = (Baker *)arg;
 
-    if(shared_kitchen->oven.in_use == false) {
-        printf("%s is using the oven.\n", baker->name);
-        shared_kitchen->oven.in_use = true;
-        baker->usingOven = true;
-    }else{
-        printf("%s is waiting for the oven.\n", baker->name);
-    }
+    // Implement baking process here
+    printf("Baker %d is ready to bake!\n", baker->id);
+    sleep(1);
 
-    pthread_exit(NULL);
+    bakeRecipe(baker, "cookies", 5);    
+    bakeRecipe(baker, "pancakes", 3);  
+    bakeRecipe(baker, "pizza dough", 7);  
+    bakeRecipe(baker, "soft pretzels", 2);  
+    bakeRecipe(baker, "cinnamon rolls", 5);  
+
+    printf("Baker %d is done!\n", baker->id);
+
+    return NULL;
 }
 
 int main() {
-    key_t key = 1234; // key for shared memory segment
-    int shmid;
-    int numBakers;
-    Baker *bakers;
-    Recipe *recipes = NULL;
-    Kitchen kitchen = createKitchen();
+    int num_bakers;
 
-    /* Initializing the Recipes */
-    recipes = createRecipes(recipes, NUM_RECIPES);
+    printf("Enter the number of bakers: ");
+    scanf("%d", &num_bakers);
 
-    printf("How many bakers will be competing today? ");
-    scanf("%d", &numBakers);
-
-    if(numBakers < 1) {
-        printf("You must have at least one baker to compete.\n");
+    if(num_bakers < 1) {
+        printf("Invalid number of bakers. Exiting...\n");
+        exit(1);
+    }else if(num_bakers > 20) {     // TODO: Check for invalid input (characters, negative numbers, etc.)
+        printf("Too many bakers. Exiting...\n");
         exit(1);
     }
 
-    /* Initializing the Bakers */
-    bakers = (Baker*) malloc(numBakers * sizeof(Baker));
-    
-    for (int i = 0; i < numBakers; i++) {
-        sprintf(bakers[i].name, "Baker %d", i);
-        bakers[i].usingOven = false;
+    // Initialize semaphores
+    sem_init(&mixer_sem, 0, 2);
+    sem_init(&pantry_sem, 0, 1);
+    sem_init(&refrigerator_sem, 0, 2);
+    sem_init(&bowl_sem, 0, 3);
+    sem_init(&spoon_sem, 0, 5);
+    sem_init(&oven_sem, 0, 1);
+
+    Baker *bakers = malloc(sizeof(Baker) * num_bakers);
+
+    // Create baker threads
+    for (int i = 0; i < num_bakers; i++) {
+        bakers[i].id = i + 1;
+        bakers[i].recipes_completed = 0;
+        pthread_create(&bakers[i].tid, NULL, baker_thread, (void *)&bakers[i]);
     }
 
-    // create shared memory segment for kitchen
-    if ((shmid = shmget(key, sizeof(Kitchen), IPC_CREAT | 0666)) < 0) {
-        perror("shmget");
-        exit(1);
+    // Join baker threads
+    for (int i = 0; i < num_bakers; i++) {
+        pthread_join(bakers[i].tid, NULL);
     }
 
-    // attach shared memory segment for kitchen
-    if ((shared_kitchen = shmat(shmid, NULL, 0)) == (Kitchen *) -1) {
-        perror("shmat");
-        exit(1);
-    }
+    // Destroy semaphores
+    sem_destroy(&mixer_sem);
+    sem_destroy(&pantry_sem);
+    sem_destroy(&refrigerator_sem);
+    sem_destroy(&bowl_sem);
+    sem_destroy(&spoon_sem);
+    sem_destroy(&oven_sem);
 
-    // copy kitchen to shared memory segment
-    memcpy(shared_kitchen, &kitchen, sizeof(Kitchen));
-
-    // create baker threads
-    pthread_t threads[numBakers];
-    for (int i = 0; i < numBakers; i++) {
-        if (pthread_create(&threads[i], NULL, bakerThread, (void *)&bakers[i])) {
-            perror("pthread_create");
-            exit(1);
-        }
-    }
-
-    // wait for threads to finish
-    for (int i = 0; i < numBakers; i++) {
-        if (pthread_join(threads[i], NULL)) {
-            perror("pthread_join");
-            exit(1);
-        }
-    }
-
-    // detach and remove shared memory segment for kitchen
-    shmdt(shared_kitchen);
-    shmctl(shmid, IPC_RMID, NULL);
-
-    free(kitchen.refrigerators);
-    free(kitchen.equipment);
     free(bakers);
-    free(recipes);
 
     return 0;
 }

@@ -1,141 +1,63 @@
-#ifndef UTILS_H 
-#define UTILS_H
-
+#include <string.h>
 #include "utils.h"
 
-Recipe* createRecipes(Recipe* recipes, int numRecipes) { 
-    recipes = (Recipe*) malloc(numRecipes * sizeof(Recipe)); 
+void bakeRecipe(Baker *baker, char* recipe, int bakeTime){
+    printf("Baker %d is getting ingredients for %s.\n", baker->id, recipe);
     
-    Recipe cookies = { 
-        "Cookies", 
-        .requiredIngredients = { 
-            {"Flour"}, 
-            {"Sugar"}, 
-            {"Milk"}, 
-            {"Butter"} 
-        } 
-    }; 
+    sem_wait(&pantry_sem);
+    printf("Baker %d is using the pantry.\n", baker->id);
 
-    Recipe pancakes= { 
-        "Pancakes", 
-        .requiredIngredients = { 
-            {"Flour"}, 
-            {"Sugar"}, 
-            {"Baking Soda"}, 
-            {"Salt"}, 
-            {"Egg"}, 
-            {"Milk"}, 
-            {"Butter"} 
-        } 
-    }; 
+    sleep(1);
+    sem_post(&pantry_sem);
+    printf("Baker %d is done using the pantry.\n", baker->id);
 
-    Recipe pizzaDough = { 
-        "Pizza Dough", 
-        .requiredIngredients = { 
-            {"Yeast"},
-            {"Sugar"},
-            {"Salt"}
-        }
-    };
+    if(strcmp(recipe, "pizza dough") != 0){
+        // Pizza dough doesn't need the refrigerator
 
-    Recipe softPretzels = {
-        "Soft Pretzels",
-        .requiredIngredients = {
-            {"Flour"},
-            {"Sugar"},
-            {"Salt"},
-            {"Yeast"},
-            {"Baking Soda"},
-            {"Egg"}
-        }
-    };
+        sem_wait(&refrigerator_sem);
+        printf("Baker %d is using the refrigerator.\n", baker->id);    
 
-    Recipe cinnamonRolls= {
-        "Cinnamon Rolls",
-        .requiredIngredients = {
-            {"Flour"},
-            {"Sugar"},
-            {"Salt"},
-            {"Butter"},
-            {"Egg"},
-            {"Cinnamon"}
-        }
-    };
-
-    recipes[0] = cookies;
-    recipes[1] = pancakes;
-    recipes[2] = pizzaDough;
-    recipes[3] = softPretzels;
-    recipes[4] = cinnamonRolls;
-
-    return recipes;
-}
-
-Kitchen createKitchen(){
-    Kitchen kitchen;
-
-    // Initialize ingredients
-    Ingredient egg = {"Egg"};
-    Ingredient milk = {"Milk"};
-    Ingredient butter = {"Butter"};
-
-    Ingredient flour = {"Flour"};
-    Ingredient sugar = {"Sugar"};
-    Ingredient yeast = {"Yeast"};
-    Ingredient bakingSoda = {"Baking Soda"};
-    Ingredient salt = {"Salt"};
-    Ingredient cinnamon = {"Cinnamon"};
-
-    // Initialize equipment
-    Equipment mixer = {"Mixer", 2};
-    Equipment bowl = {"Bowl", 3};
-    Equipment spoon = {"Spoon", 5};
-
-    // Initialize oven
-    Oven oven = {false};
-
-    // Initialize bakers to NULL
-    kitchen.bakers = NULL;
-
-    // Allocate memory for refrigerators
-    kitchen.refrigerators = calloc(2, sizeof(Refrigerator));
-
-    // Allocate memory for equipment
-    kitchen.equipment = calloc(3, sizeof(Equipment));
-
-    // Initialize refrigerators
-    for (int i = 0; i < 2; i++) {
-        kitchen.refrigerators[i] = (Refrigerator) {
-            .in_use = false,
-            .ingredients = {
-                egg,
-                milk,
-                butter 
-            }
-        };
+        sleep(5);
+        sem_post(&refrigerator_sem);
+        printf("Baker %d is done using the refrigerator.\n", baker->id);
     }
 
-    kitchen.pantry = (Pantry) {
-        .in_use = false,
-        .ingredients = {
-            flour,
-            sugar,
-            yeast,
-            bakingSoda,
-            salt,
-            cinnamon
-        }
-    };
+    mixAndBake(baker, recipe, bakeTime);
 
-    kitchen.equipment[0] = mixer;
-    kitchen.equipment[1] = bowl;
-    kitchen.equipment[2] = spoon;
-
-    kitchen.oven = oven;
-
-    return kitchen;
-
+    printf("Baker %d is done baking %s.\n", baker->id, recipe);
+    resetIngredients(baker);
+    baker->recipes_completed++;
 }
 
 
-#endif
+void mixAndBake(Baker *baker, char* recipe, int bakeTime){
+    printf("Baker %d is gathering equipment for mixing.\n", baker->id);
+    sem_wait(&mixer_sem);
+    sem_wait(&bowl_sem);
+    sem_wait(&spoon_sem);
+
+    printf("Baker %d is mixing ingredients.\n", baker->id);
+    sleep(3);
+    printf("Baker %d is done mixing ingredients.\n", baker->id);
+
+    sem_post(&mixer_sem);
+    sem_post(&bowl_sem);
+    sem_post(&spoon_sem);
+
+    printf("Baker %d is ready to put %s in the oven.\n", baker->id, recipe);
+    sem_wait(&oven_sem);
+    printf("Baker %d is using the oven.\n", baker->id);
+    sleep(bakeTime);
+    sem_post(&oven_sem);
+}
+
+void resetIngredients(Baker *baker){
+    for(int i = 0; i < MAX_INGREDIENTS; i++){
+        baker->ingredients[i] = "";
+    }
+}
+
+
+
+
+
