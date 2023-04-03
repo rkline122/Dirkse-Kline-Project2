@@ -7,6 +7,7 @@
 #include <semaphore.h>
 #include <unistd.h>
 
+extern sem_t rank_sem;
 extern sem_t mixer_sem;
 extern sem_t pantry_sem;
 extern sem_t refrigerator_sem;

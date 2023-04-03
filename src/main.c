@@ -1,7 +1,8 @@
 #include "utils.h"
-
+#include <semaphore.h>
 
 int *ranking;
+sem_t rank_sem;
 sem_t mixer_sem;
 sem_t pantry_sem;
 sem_t refrigerator_sem;
@@ -23,11 +24,13 @@ void *baker_thread(void *arg) {
     bakeRecipe(baker, "cinnamon rolls", 5);  
     printf("Baker %d is done!\n", baker->id);
 
+    sem_wait(&rank_sem);
     int i = 0;
     while(ranking[i] != 0){
         i++;
     }
     ranking[i] = baker->id;
+    sem_post(&rank_sem);
 
     return NULL;
 }
@@ -47,6 +50,7 @@ int main() {
     }
 
     // Initialize semaphores
+    sem_init(&rank_sem, 0, 1);
     sem_init(&mixer_sem, 0, 2);
     sem_init(&pantry_sem, 0, 1);
     sem_init(&refrigerator_sem, 0, 2);
@@ -101,6 +105,7 @@ int main() {
     sem_destroy(&bowl_sem);
     sem_destroy(&spoon_sem);
     sem_destroy(&oven_sem);
+    sem_destroy(&rank_sem);
 
     free(bakers);
     free(ranking);
