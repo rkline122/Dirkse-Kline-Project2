@@ -7,13 +7,13 @@
 #include <semaphore.h>
 #include <unistd.h>
 
-extern sem_t rank_sem;
-extern sem_t mixer_sem;
-extern sem_t pantry_sem;
-extern sem_t refrigerator_sem;
-extern sem_t bowl_sem;
-extern sem_t spoon_sem;
-extern sem_t oven_sem;
+extern sem_t rankSem;
+extern sem_t mixerSem;
+extern sem_t pantrySem;
+extern sem_t refridgeratorSem;
+extern sem_t bowlSem;
+extern sem_t spoonSem;
+extern sem_t ovenSem;
 
 typedef struct {
     int id;

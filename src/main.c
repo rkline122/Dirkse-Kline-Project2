@@ -2,15 +2,15 @@
 #include <semaphore.h>
 
 int *ranking;
-sem_t rank_sem;
-sem_t mixer_sem;
-sem_t pantry_sem;
-sem_t refrigerator_sem;
-sem_t bowl_sem;
-sem_t spoon_sem;
-sem_t oven_sem;
+sem_t rankSem;
+sem_t mixerSem;
+sem_t pantrySem;
+sem_t refridgeratorSem;
+sem_t bowlSem;
+sem_t spoonSem;
+sem_t ovenSem;
 
-void *baker_thread(void *arg) {
+void *bakerThread(void *arg) {
     Baker *baker = (Baker *)arg;
 
     // Implement baking process here
@@ -24,63 +24,63 @@ void *baker_thread(void *arg) {
     bakeRecipe(baker, "cinnamon rolls", 5);  
     printf("Baker %d is done!\n", baker->id);
 
-    sem_wait(&rank_sem);
+    sem_wait(&rankSem);
     int i = 0;
     while(ranking[i] != 0){
         i++;
     }
     ranking[i] = baker->id;
-    sem_post(&rank_sem);
+    sem_post(&rankSem);
 
     return NULL;
 }
 
 int main() {
-    int num_bakers;
+    int numBakers;
 
     printf("Enter the number of bakers: ");
-    scanf("%d", &num_bakers);
+    scanf("%d", &numBakers);
 
-    if(num_bakers < 1) {
+    if(numBakers < 1) {
         printf("Invalid number of bakers. Exiting...\n");
         exit(1);
-    }else if(num_bakers > 20) {     // TODO: Check for invalid input (characters, negative numbers, etc.)
+    }else if(numBakers > 20) {  
         printf("Too many bakers. Exiting...\n");
         exit(1);
     }
 
     // Initialize semaphores
-    sem_init(&rank_sem, 0, 1);
-    sem_init(&mixer_sem, 0, 2);
-    sem_init(&pantry_sem, 0, 1);
-    sem_init(&refrigerator_sem, 0, 2);
-    sem_init(&bowl_sem, 0, 3);
-    sem_init(&spoon_sem, 0, 5);
-    sem_init(&oven_sem, 0, 1);
+    sem_init(&rankSem, 0, 1);
+    sem_init(&mixerSem, 0, 2);
+    sem_init(&pantrySem, 0, 1);
+    sem_init(&refridgeratorSem, 0, 2);
+    sem_init(&bowlSem, 0, 3);
+    sem_init(&spoonSem, 0, 5);
+    sem_init(&ovenSem, 0, 1);
 
-    Baker *bakers = malloc(sizeof(Baker) * num_bakers);
-    ranking = (int*)malloc(sizeof(int) * num_bakers);
+    Baker *bakers = malloc(sizeof(Baker) * numBakers);
+    ranking = (int*)malloc(sizeof(int) * numBakers);
 
     // Initialize ranking array
-    for(int i = 0; i < num_bakers; i++){
+    for(int i = 0; i < numBakers; i++){
         ranking[i] = 0;
     }
 
     // Create baker threads
-    for (int i = 0; i < num_bakers; i++) {
+    for (int i = 0; i < numBakers; i++) {
         bakers[i].id = i + 1;
-        pthread_create(&bakers[i].tid, NULL, baker_thread, (void *)&bakers[i]);
+        pthread_create(&bakers[i].tid, NULL, bakerThread, (void *)&bakers[i]);
     }
 
     // Join baker threads
-    for (int i = 0; i < num_bakers; i++) {
+    for (int i = 0; i < numBakers; i++) {
         pthread_join(bakers[i].tid, NULL);
     }
 
     // Print ranking
     printf("\nThe final results are in!\n");
     printf("===========================\n");
-    for(int i = 0; i < num_bakers; i++){
+    for(int i = 0; i < numBakers; i++){
         switch (i){
         case 0:
             printf("1st Place: Baker %d\n", ranking[i]);
@@ -99,13 +99,13 @@ int main() {
     }
 
     // Destroy semaphores
-    sem_destroy(&mixer_sem);
-    sem_destroy(&pantry_sem);
-    sem_destroy(&refrigerator_sem);
-    sem_destroy(&bowl_sem);
-    sem_destroy(&spoon_sem);
-    sem_destroy(&oven_sem);
-    sem_destroy(&rank_sem);
+    sem_destroy(&mixerSem);
+    sem_destroy(&pantrySem);
+    sem_destroy(&refridgeratorSem);
+    sem_destroy(&bowlSem);
+    sem_destroy(&spoonSem);
+    sem_destroy(&ovenSem);
+    sem_destroy(&rankSem);
 
     free(bakers);
     free(ranking);
